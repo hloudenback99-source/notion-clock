@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Notion Flip Clock</title>
+  <style>
+    :root {
+      --accent: #d7b46a;
+      --wood-1: #3b2a1f;
+      --wood-2: #241812;
+      --wood-3: #5a3c28;
+      --text: #f7efe1;
+      --muted: rgba(247, 239, 225, 0.62);
+      --height: 300px;
+      --max-width: 900px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      width: 100%;
+      min-height: 100%;
+      background: transparent;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      overflow: hidden;
+    }
+
+    body {
+      display: grid;
+      place-items: center;
+      padding: 14px;
+    }
+
+    .clock-shell {
+      width: 100%;
+      max-width: var(--max-width);
+      min-height: var(--height);
+      position: relative;
+      border-radius: 30px;
+      padding: clamp(16px, 4vw, 32px);
+      background:
+        radial-gradient(circle at 18% 10%, rgba(255,255,255,.16), transparent 30%),
+        radial-gradient(circle at 82% 90%, rgba(215,180,106,.18), transparent 36%),
+        repeating-linear-gradient(95deg, var(--wood-1) 0 14px, var(--wood-2) 14px 25px, var(--wood-3) 25px 31px);
+      box-shadow:
+        0 24px 70px rgba(0,0,0,.48),
+        inset 0 2px 2px rgba(255,255,255,.18),
+        inset 0 -14px 30px rgba(0,0,0,.5);
+      overflow: hidden;
+    }
+
+    .clock-shell::before {
+      content: "";
+      position: absolute;
+      inset: 12px;
+      border-radius: 22px;
+      border: 1px solid rgba(255,255,255,.12);
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.4);
+      pointer-events: none;
+    }
+
+    .clock-inner {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 20px;
+      min-height: calc(var(--height) - 64px);
+      padding: clamp(16px, 3vw, 26px);
+      border-radius: 24px;
+      background:
+        radial-gradient(circle at 50% 0%, rgba(215,180,106,.14), transparent 45%),
+        linear-gradient(145deg, #1d1815, #0d0b0a);
+      border: 1px solid rgba(255,255,255,.1);
+      box-shadow:
+        inset 0 1px rgba(255,255,255,.13),
+        inset 0 -1px rgba(0,0,0,.7),
+        0 18px 42px rgba(0,0,0,.3);
+    }
+
+    .topline,
+    .bottomline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      font-size: clamp(10px, 1.8vw, 13px);
+      color: var(--muted);
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      white-space: nowrap;
+    }
+
+    .light {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 18px rgba(215,180,106,.8), 0 0 0 5px rgba(215,180,106,.08);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: .6; transform: scale(.92); }
+      50% { opacity: 1; transform: scale(1); }
+    }
+
+    .time-rack {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(8px, 1.8vw, 18px);
+      min-width: 0;
+    }
+
+    .unit {
+      display: grid;
+      gap: 8px;
+      justify-items: center;
+    }
+
+    .flap {
+      position: relative;
+      width: clamp(68px, 18vw, 148px);
+      aspect-ratio: .76;
+      perspective: 900px;
+      filter: drop-shadow(0 16px 18px rgba(0,0,0,.35));
+    }
+
+    .flap-card {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      border-radius: clamp(14px, 2.4vw, 22px);
+      background: linear-gradient(180deg, #2b2b2d 0 49%, #050506 50%, #111113 51% 100%);
+      border: 1px solid rgba(255,255,255,.1);
+      box-shadow:
+        inset 0 1px 1px rgba(255,255,255,.24),
+        inset 0 -1px 1px rgba(0,0,0,.9),
+        0 7px 0 #050506,
+        0 17px 24px rgba(0,0,0,.32);
+      transform-style: preserve-3d;
+    }
+
+    .flap-card::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: calc(50% - 1px);
+      height: 2px;
+      background: rgba(0,0,0,.86);
+      box-shadow: 0 -1px rgba(255,255,255,.07), 0 1px rgba(255,255,255,.05);
+      z-index: 2;
+    }
+
+    .flap-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.08), transparent 16%, transparent 84%, rgba(0,0,0,.34)),
+        radial-gradient(circle at 50% 8%, rgba(255,255,255,.13), transparent 42%);
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    .digit {
+      position: relative;
+      z-index: 4;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-variant-numeric: tabular-nums;
+      font-size: clamp(44px, 15vw, 116px);
+      font-weight: 850;
+      letter-spacing: -.09em;
+      padding-right: .09em;
+      line-height: 1;
+      color: var(--text);
+      text-shadow: 0 1px rgba(255,255,255,.2), 0 6px 10px rgba(0,0,0,.72);
+    }
+
+    .label {
+      font-size: clamp(9px, 1.5vw, 11px);
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: rgba(247,239,225,.42);
+    }
+
+    .colon {
+      display: grid;
+      gap: clamp(8px, 2vw, 14px);
+      align-content: center;
+      padding-bottom: 28px;
+      opacity: .85;
+    }
+
+    .colon span {
+      width: clamp(7px, 1.5vw, 13px);
+      height: clamp(7px, 1.5vw, 13px);
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 14px rgba(215,180,106,.65), inset 0 1px 1px rgba(255,255,255,.9);
+    }
+
+    .ampm {
+      align-self: center;
+      padding: 10px 12px;
+      border-radius: 999px;
+      background: rgba(0,0,0,.24);
+      border: 1px solid rgba(255,255,255,.11);
+      color: var(--accent);
+      font-size: clamp(11px, 2vw, 14px);
+      font-weight: 800;
+      letter-spacing: .16em;
+      box-shadow: inset 0 1px rgba(255,255,255,.1), 0 8px 18px rgba(0,0,0,.25);
+    }
+
+    .date {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .progress-track {
+      position: relative;
+      flex: 1 1 auto;
+      min-width: 90px;
+      height: 8px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: rgba(255,255,255,.06);
+      box-shadow: inset 0 1px 3px rgba(0,0,0,.7), 0 1px rgba(255,255,255,.06);
+    }
+
+    .progress-fill {
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 0%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, rgba(215,180,106,.55), rgba(247,239,225,.95));
+      box-shadow: 0 0 18px rgba(215,180,106,.35);
+      transition: width .45s ease;
+    }
+
+    .flip .flap-card {
+      animation: turn .55s cubic-bezier(.22,.61,.36,1);
+    }
+
+    @keyframes turn {
+      0% { transform: rotateX(0deg); filter: brightness(1); }
+      42% { transform: rotateX(-88deg); filter: brightness(.72); }
+      100% { transform: rotateX(0deg); filter: brightness(1); }
+    }
+
+    @media (max-width: 640px) {
+      :root { --height: 250px; }
+      body { padding: 10px; }
+      .clock-shell { padding: 13px; }
+      .clock-inner { gap: 15px; padding: 17px 13px; }
+      .time-rack { gap: 7px; }
+      .flap { width: clamp(54px, 21vw, 88px); }
+      .digit { font-size: clamp(36px, 17vw, 70px); }
+      .label { display: none; }
+      .topline, .bottomline { font-size: 9px; letter-spacing: .09em; }
+      .ampm { position: absolute; right: 16px; bottom: 46px; font-size: 10px; padding: 7px 9px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="clock-shell" aria-label="Notion dashboard clock">
+    <section class="clock-inner">
+      <div class="topline">
+        <div class="brand">
+          <span class="light" aria-hidden="true"></span>
+          <span>Dashboard Clock</span>
+        </div>
+        <span id="timezone">Local Time</span>
+      </div>
+
+      <div class="time-rack" aria-live="polite">
+        <div class="unit" id="hoursUnit">
+          <div class="flap"><div class="flap-card"><span class="digit" id="hours">12</span></div></div>
+          <span class="label">Hours</span>
+        </div>
+
+        <div class="colon" aria-hidden="true"><span></span><span></span></div>
+
+        <div class="unit" id="minutesUnit">
+          <div class="flap"><div class="flap-card"><span class="digit" id="minutes">00</span></div></div>
+          <span class="label">Minutes</span>
+        </div>
+
+        <div class="colon" aria-hidden="true"><span></span><span></span></div>
+
+        <div class="unit" id="secondsUnit">
+          <div class="flap"><div class="flap-card"><span class="digit" id="seconds">00</span></div></div>
+          <span class="label">Seconds</span>
+        </div>
+
+        <div class="ampm" id="ampm">AM</div>
+      </div>
+
+      <div class="bottomline">
+        <span class="date" id="dateDisplay">Loading date</span>
+        <div class="progress-track" title="Day progress">
+          <span class="progress-fill" id="progressFill"></span>
+        </div>
+        <span id="dayPercent">0%</span>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const settings = {
+      clockTitle: "Dashboard Clock",
+      timeZone: "America/Chicago",
+      use24Hour: false,
+      showSeconds: true
+    };
+
+    document.querySelector(".brand span:last-child").textContent = settings.clockTitle;
+
+    const timezoneEl = document.getElementById("timezone");
+    const dateDisplay = document.getElementById("dateDisplay");
+    const dayPercent = document.getElementById("dayPercent");
+    const progressFill = document.getElementById("progressFill");
+    const ampm = document.getElementById("ampm");
+
+    const parts = {
+      hours: { value: document.getElementById("hours"), unit: document.getElementById("hoursUnit"), previous: null },
+      minutes: { value: document.getElementById("minutes"), unit: document.getElementById("minutesUnit"), previous: null },
+      seconds: { value: document.getElementById("seconds"), unit: document.getElementById("secondsUnit"), previous: null }
+    };
+
+    if (!settings.showSeconds) {
+      document.getElementById("secondsUnit").style.display = "none";
+      document.querySelectorAll(".colon")[1].style.display = "none";
+    }
+
+    function pad(number) {
+      return String(number).padStart(2, "0");
+    }
+
+    function getParts(date) {
+      const formatter = new Intl.DateTimeFormat("en-US", {
+        timeZone: settings.timeZone || undefined,
+        hour12: false,
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        weekday: "long",
+        month: "long",
+        day: "numeric",
+        year: "numeric"
+      });
+
+      const map = {};
+      formatter.formatToParts(date).forEach(part => {
+        if (part.type !== "literal") map[part.type] = part.value;
+      });
+
+      return {
+        hours24: Number(map.hour === "24" ? "0" : map.hour),
+        minutes: Number(map.minute),
+        seconds: Number(map.second),
+        weekday: map.weekday,
+        month: map.month,
+        day: map.day,
+        year: map.year,
+        zoneName: settings.timeZone ? settings.timeZone.replace(/_/g, " ") : Intl.DateTimeFormat().resolvedOptions().timeZone
+      };
+    }
+
+    function setFlip(key, nextValue) {
+      const target = parts[key];
+      if (target.previous !== nextValue) {
+        target.value.textContent = nextValue;
+        target.unit.classList.remove("flip");
+        void target.unit.offsetWidth;
+        target.unit.classList.add("flip");
+        target.previous = nextValue;
+      }
+    }
+
+    function updateClock() {
+      const now = new Date();
+      const time = getParts(now);
+      const displayHours = settings.use24Hour ? time.hours24 : ((time.hours24 + 11) % 12) + 1;
+
+      setFlip("hours", pad(displayHours));
+      setFlip("minutes", pad(time.minutes));
+      setFlip("seconds", pad(time.seconds));
+
+      ampm.textContent = settings.use24Hour ? "24H" : (time.hours24 >= 12 ? "PM" : "AM");
+      timezoneEl.textContent = time.zoneName;
+      dateDisplay.textContent = `${time.weekday}, ${time.month} ${time.day}, ${time.year}`;
+
+      const secondsIntoDay = (time.hours24 * 3600) + (time.minutes * 60) + time.seconds;
+      const percent = Math.min(100, Math.max(0, (secondsIntoDay / 86400) * 100));
+      progressFill.style.width = `${percent}%`;
+      dayPercent.textContent = `${Math.round(percent)}%`;
+    }
+
+    updateClock();
+    setInterval(updateClock, 1000);
+  </script>
+</body>
+</html>
